@@ -47,7 +47,7 @@ services:
 
     
   homepage:
-    image: my-resume-site
+    image: ghcr.io/vismayak/my-website-homepage
     container_name: homepage
     labels:
     - traefik.enable=true                    # Enable Traefik for this container
