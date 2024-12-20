@@ -9,16 +9,18 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--entrypoints.websecure.address=:443"
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
-      - "--api.dashboard=true"  # Changed from --api
+      - "--api=true"
+      - "--api.dashboard=true"
       - "--certificatesresolvers.letsencryptresolver.acme.email=${EMAIL}"
       - "--certificatesresolvers.letsencryptresolver.acme.storage=/acme.json"
       - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge=true"     
       - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge.entrypoint=web"
+      # Uncomment during testing to avoid hitting Let's Encrypt's rate limits
       # - "--certificatesresolvers.letsencryptresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
       # The HTTP port
@@ -35,14 +37,14 @@ services:
 
       # "admin" middleware definition
       # to be used by services that do not have their own security
-      # - "traefik.http.middlewares.admin.basicauth.users=${HTTP_BASIC_USER}"
+      - "traefik.http.middlewares.admin.basicauth.users=${HTTP_BASIC_USER}"
 
       # expose the traefik dashboard
-      - traefik.http.routers.traefik.entrypoints=websecure
-      - traefik.http.routers.traefik.rule=Host(`traefik.${SITE_URL}`)
-      - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.routers.traefik.middlewares=admin
-      - traefik.http.routers.traefik.tls.certresolver=letsencryptresolver
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.rule=Host(`traefik.${SITE_URL}`)
+      - traefik.http.routers.api.service=api@internal
+      - traefik.http.routers.api.middlewares=admin@docker
+      - traefik.http.routers.api.tls.certresolver=letsencryptresolver
 
     
   homepage:
