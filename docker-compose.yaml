@@ -45,14 +45,16 @@ services:
       - traefik.http.routers.api.middlewares=admin@docker
       - traefik.http.routers.api.tls.certresolver=letsencryptresolver
 
+      
+
     
   homepage:
     image: ghcr.io/vismayak/my-website-homepage
     container_name: homepage
     labels:
     - traefik.enable=true                    # Enable Traefik for this container
-    - traefik.http.routers.homepage.entrypoints=websecure  # Added this
-    - traefik.http.routers.homepage.rule=Host(`${SITE_URL}`)
+    - traefik.http.routers.homepage.entrypoints=websecure
+    - traefik.http.routers.homepage.rule=Host(`${SITE_URL}`) || Host(`www.${SITE_URL}`)
     - traefik.http.routers.homepage.tls.certresolver=letsencryptresolver
     - traefik.http.services.homepage.loadbalancer.server.port=80
   

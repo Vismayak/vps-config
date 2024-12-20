@@ -1,4 +1,3 @@
-disableConfiguration: false
 pageInfo:
   title: Vismayak's Dashy
   description: Dashboard to handle Vismayak's VPS
@@ -11,6 +10,7 @@ appConfig:
   theme: glass-2
   layout: vertical
   iconSize: medium
+  disableConfiguration: true
 sections:
   - name: Productivity
     displayData:
