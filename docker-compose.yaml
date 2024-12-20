@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    restart: unless-stopped
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - "--log.level=DEBUG"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--api.dashboard=true"  # Changed from --api
+      - "--certificatesresolvers.letsencryptresolver.acme.email=${EMAIL}"
+      - "--certificatesresolvers.letsencryptresolver.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge=true"     
+      - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge.entrypoint=web"
+      # - "--certificatesresolvers.letsencryptresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+    ports:
+      # The HTTP port
+      - "80:80"
+      - 443:443
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Share localtime
+      - /etc/localtime:/etc/localtime:ro
+      - ${TRAEFIK_DIR}/acme.json:/acme.json
+    labels:
+      - traefik.enable=true
+
+      # "admin" middleware definition
+      # to be used by services that do not have their own security
+      # - "traefik.http.middlewares.admin.basicauth.users=${HTTP_BASIC_USER}"
+
+      # expose the traefik dashboard
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.rule=Host(`traefik.${SITE_URL}`)
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.middlewares=admin
+      - traefik.http.routers.traefik.tls.certresolver=letsencryptresolver
+
+    
+  homepage:
+    image: ghcr.io/vismayak/my-website-homepage
+    container_name: homepage
+    labels:
+    - traefik.enable=true                    # Enable Traefik for this container
+    - traefik.http.routers.homepage.entrypoints=websecure  # Added this
+    - traefik.http.routers.homepage.rule=Host(`${SITE_URL}`)
+    - traefik.http.routers.homepage.tls.certresolver=letsencryptresolver
+    - traefik.http.services.homepage.loadbalancer.server.port=80
