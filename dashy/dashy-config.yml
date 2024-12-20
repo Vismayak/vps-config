@@ -1,0 +1,33 @@
+disableConfiguration: false
+pageInfo:
+  title: Vismayak's Dashy
+  description: Dashboard to handle Vismayak's VPS
+  navLinks:
+    - title: GitHub
+      path: https://github.com/Vismayak
+    - title: Documentation
+      path: https://dashy.to/docs
+appConfig:
+  theme: glass-2
+  layout: vertical
+  iconSize: medium
+sections:
+  - name: Productivity
+    displayData:
+      collapsed: false
+      cols: 2
+    items:
+      - &ref_0
+        title: AppFlowy
+        description: Web site archiving
+        icon: appflowy.png
+        id: 0_1302_appflowy
+      - &ref_1
+        title: Traefik
+        description: Feature-rich dynamic tables (similar to Airtable)
+        icon: https://icon.icepanel.io/Technology/svg/Traefik-Proxy.svg
+        url: ' Manage traffic and routing.'
+        id: 1_1302_traefik
+    filteredItems:
+      - *ref_0
+      - *ref_1

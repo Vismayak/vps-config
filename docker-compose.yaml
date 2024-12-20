@@ -1,4 +1,3 @@
-version: '3'
 
 services:
   traefik:
@@ -48,11 +47,35 @@ services:
 
     
   homepage:
-    image: ghcr.io/vismayak/my-website-homepage
+    image: my-resume-site
     container_name: homepage
     labels:
     - traefik.enable=true                    # Enable Traefik for this container
     - traefik.http.routers.homepage.entrypoints=websecure  # Added this
     - traefik.http.routers.homepage.rule=Host(`${SITE_URL}`)
     - traefik.http.routers.homepage.tls.certresolver=letsencryptresolver
-    - traefik.http.services.homepage.loadbalancer.server.port=80
+    - traefik.http.services.homepage.loadbalancer.server.port=80`
+  
+  dashy:
+    image: lissy93/dashy
+    container_name: Dashy
+    environment:
+        - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./dashy/dashy-config.yml:/app/user-data/conf.yml
+      - ./dashy/icons:/app/user-data/item-icons/
+    # Configure healthchecks
+    healthcheck:
+      test: ['CMD', 'node', '/app/services/healthcheck']
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashy.entrypoints=websecure
+      - traefik.http.routers.dashy.rule=Host(`dashboard.${SITE_URL}`)
+      - traefik.http.services.dashy.loadbalancer.server.port=8080
+      - traefik.http.routers.homepage.tls.certresolver=letsencryptresolver
+      # - traefik.http.routers.dashy.middlewares=admin@docker
